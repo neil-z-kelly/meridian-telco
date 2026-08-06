@@ -1,0 +1,9 @@
+ACCT_ID,CUST_NM,TAX_ID,SVC_ADDR,PLAN_CD,INCLUDED_GB,LOYALTY_PCT,TAX_PCT
+BEACON-004417,Beacon Manufacturing Corp,47-2214880,"1400 Harbor Industrial Way, Quincy, MA 02171",ENT-5000,5000,8.0,6.25
+MER-011000,Northgate Logistics LLC,26-8841902,"88 Northgate Blvd, Providence, RI 02903",ENT-1000,1000,3.0,6.25
+MER-011007,Cedar Point Health Systems,31-5528117,"2100 Cedar Point Dr, Atlanta, GA 30318",ENT-2500,2500,3.0,6.25
+MER-011014,Willow Grove Retail Group,45-9930221,"500 Willow Grove Pkwy, Chicago, IL 60614",ENT-2500,1000,3.0,6.25
+MER-011021,Stonebridge Financial,12-7741550,"9 Stonebridge Sq, Phoenix, AZ 85004",BIZ-500,1000,5.0,6.25
+MER-011028,Kingsley Media Networks,77-1120983,"455 Kingsley Ave, Seattle, WA 98109",ENT-1000,2500,0.0,6.25
+MER-011035,Ashford Public Schools,04-6621174,"31 Ashford Rd, Manchester, NH 03101",ENT-2500,1000,3.0,6.25
+MER-011042,Foxglove Biotech,83-4410927,"7 Foxglove Way, Raleigh, NC 27601",ENT-1000,500,0.0,6.25

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Meridian OSS - Invoice Register</title>
+<style>
+body { font-family: Verdana, Geneva, sans-serif; font-size: 12px; margin: 0; background: #eceff1; color: #102027; }
+h1 { background: #1b3a4b; color: #fff; margin: 0; padding: 14px 18px; font-size: 16px; letter-spacing: 1px; }
+.wrap { padding: 18px; }
+table { border-collapse: collapse; background: #fff; width: 100%; }
+th { background: #cfd8dc; text-align: left; padding: 5px 8px; font-size: 11px; }
+td { padding: 4px 8px; border-top: 1px solid #eceff1; }
+td.num { text-align: right; }
+.err { color: #b71c1c; }
+.tot { font-weight: bold; background: #fffde7; }
+</style>
+</head>
+<body>
+<h1>MERIDIAN OSS &mdash; INVOICE REGISTER</h1>
+<div class="wrap">
+  <p>Period: <select id="period"><option>2026-07</option><option>2026-06</option></select></p>
+  <p id="err" class="err"></p>
+  <table>
+    <thead><tr><th>ACCT_ID</th><th>CUST_NM</th><th>TAX_ID</th><th>USAGE_MB</th><th>RATED_GB</th><th>OVERAGE_GB</th><th>CHARGES</th><th>TOTAL</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+<script>
+var API = "http://localhost:8082";
+function load() {
+  var p = document.getElementById("period").value;
+  fetch(API + "/invoices?period=" + p).then(function (r) { return r.json(); }).then(function (d) {
+    var html = "", total = 0;
+    d.invoices.forEach(function (i) {
+      total += i.INVOICE_TOTAL;
+      html += "<tr><td>" + i.ACCT_ID + "</td><td>" + i.CUST_NM + "</td><td>" + i.TAX_ID +
+              "</td><td class='num'>" + i.USAGE_MB + "</td><td class='num'>" + i.USAGE_GB_RATED +
+              "</td><td class='num'>" + i.OVERAGE_GB + "</td><td class='num'>$" + i.OVERAGE_CHARGES.toFixed(2) +
+              "</td><td class='num'>$" + i.INVOICE_TOTAL.toFixed(2) + "</td></tr>";
+    });
+    html += "<tr class='tot'><td colspan='7'>TOTAL BILLED</td><td class='num'>$" + total.toFixed(2) + "</td></tr>";
+    document.getElementById("rows").innerHTML = html;
+  }).catch(function (e) { document.getElementById("err").textContent = "invoice-api unreachable on :8082 (" + e + ")"; });
+}
+document.getElementById("period").onchange = load;
+load();
+</script>
+</body>
+</html>

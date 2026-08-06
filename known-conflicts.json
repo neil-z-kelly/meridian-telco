@@ -1,0 +1,268 @@
+{
+  "generated_for": "post-acquisition OSS/BSS reconciliation demo",
+  "repos": {
+    "meridian": "meridian-oss",
+    "vantage": "vantage-net"
+  },
+  "inventory": {
+    "expected_counts": {
+      "meridian_sites": 412,
+      "vantage_sites": 97,
+      "naive_sum": 509,
+      "unified_true_count": 503,
+      "true_duplicates": 6
+    },
+    "duplicates": [
+      {
+        "type": "duplicate",
+        "name": "Riverside Crossing Tower",
+        "meridian_asset_id": 104432,
+        "vantage_device_uuid": "7df04fa3-e35d-6f44-193f-038f70570d90",
+        "tower_registration": "TWR-RC-2214",
+        "latitude": 42.371944,
+        "longitude": -71.086111,
+        "expected_resolution": "merge into one unified resource, retain both source ids"
+      },
+      {
+        "type": "duplicate",
+        "name": "Granite Hill Macro Site",
+        "meridian_asset_id": 101187,
+        "vantage_device_uuid": "538386ab-264d-d038-ee78-5578f2c7434e",
+        "tower_registration": "TWR-GH-1180",
+        "latitude": 42.4123,
+        "longitude": -71.2014,
+        "expected_resolution": "merge into one unified resource, retain both source ids"
+      },
+      {
+        "type": "duplicate",
+        "name": "Fairview Ridge Tower",
+        "meridian_asset_id": 102954,
+        "vantage_device_uuid": "4465b7a5-4978-d23d-d2bf-3b86cad30dae",
+        "tower_registration": "TWR-FR-3391",
+        "latitude": 33.8127,
+        "longitude": -84.4519,
+        "expected_resolution": "merge into one unified resource, retain both source ids"
+      },
+      {
+        "type": "duplicate",
+        "name": "Lakeshore North Hub",
+        "meridian_asset_id": 103301,
+        "vantage_device_uuid": "fe4fc8bd-86cd-1d54-f957-1b1bbf5d3ef8",
+        "tower_registration": "TWR-LN-5502",
+        "latitude": 41.9622,
+        "longitude": -87.651,
+        "expected_resolution": "merge into one unified resource, retain both source ids"
+      },
+      {
+        "type": "duplicate",
+        "name": "Dunmore Rooftop 3",
+        "meridian_asset_id": 105620,
+        "vantage_device_uuid": "10ecbc55-afdc-cb50-22f0-32d63d387166",
+        "tower_registration": "TWR-DM-7714",
+        "latitude": 33.5011,
+        "longitude": -112.1114,
+        "expected_resolution": "merge into one unified resource, retain both source ids"
+      },
+      {
+        "type": "duplicate",
+        "name": "Whitfield Summit Tower",
+        "meridian_asset_id": 106018,
+        "vantage_device_uuid": "81e439ce-6853-b03b-d9d2-93d62042704f",
+        "tower_registration": "TWR-WS-8827",
+        "latitude": 47.6648,
+        "longitude": -122.3019,
+        "expected_resolution": "merge into one unified resource, retain both source ids"
+      }
+    ],
+    "gaps": [
+      {
+        "type": "gap",
+        "name": "Oakview Micro-Site 07",
+        "vantage_device_uuid": "4424bc47-f1e7-2d27-b338-24241faaa002",
+        "meridian_asset_id": null,
+        "expected_resolution": "retain as vantage-only resource tagged source=vantage; never dropped"
+      }
+    ],
+    "business_rule_conflicts": [
+      {
+        "type": "conflict",
+        "name": "Downtown Fiber Ring",
+        "meridian_circuit_id": "CKT-NE04-000118",
+        "vantage_circuit_id": "VC-BOS-0118",
+        "meridian_available_mbps": 400,
+        "vantage_available_mbps": 250,
+        "cause": "vantage subtracts a 150 Mbps maintenance buffer; meridian capacity.cpp does not",
+        "expected_resolution": "recompute with one consistent rule and flag the conflict rather than silently picking a side"
+      },
+      {
+        "type": "conflict",
+        "name": "lifecycle status model mismatch",
+        "cause": "meridian STATUS_CD=3 means DECOMMISSIONED but is used for temporarily-down sites; vantage distinguishes RETIRED from MAINTENANCE",
+        "expected_resolution": "normalize to the 5-state model and flag every meridian STATUS_CD=3 site as ambiguous / manual review",
+        "meridian_status_3_asset_ids": [
+          100007,
+          100021,
+          100032,
+          100050,
+          100070,
+          100139,
+          100157,
+          100231,
+          100251,
+          100351
+        ]
+      },
+      {
+        "type": "conflict",
+        "name": "standby/failover circuits counted as active",
+        "cause": "meridian circuit_counter.cpp counts ROLE_CD 2 and 3 as active; vantage circuits.py excludes STANDBY/FAILOVER",
+        "meridian_active_count_naive": 226,
+        "meridian_active_count_primary_only": 149,
+        "expected_resolution": "count primary circuits only, consistently across both systems"
+      }
+    ]
+  },
+  "network": {
+    "collisions": [
+      {
+        "type": "duplicate",
+        "address": "10.20.4.17",
+        "meridian_device": "Core-Router-NE04",
+        "vantage_device": "core-rtr-bos-12",
+        "expected_resolution": "meridian canonical; vantage device renumbers into 10.21.0.0/16"
+      },
+      {
+        "type": "duplicate",
+        "supernet": "10.20.0.0/16",
+        "cause": "both companies independently chose the same management supernet",
+        "meridian_addresses_in_use": 147,
+        "vantage_addresses_in_use": 74,
+        "overlapping_addresses": [
+          "10.20.12.44",
+          "10.20.13.44",
+          "10.20.250.30",
+          "10.20.4.17",
+          "10.20.4.44",
+          "10.20.5.44"
+        ],
+        "expected_resolution": "renumber the entire vantage allocation to 10.21.0.0/16, preserving host offsets"
+      }
+    ],
+    "gaps": [
+      {
+        "type": "gap",
+        "cause": "meridian management IPs absent from every vantage DNS zone and monitoring config",
+        "meridian_devices": [
+          "olt-NE-04-04",
+          "olt-NE-04-10",
+          "olt-NE-04-12",
+          "olt-NE-04-16",
+          "olt-NE-04-18",
+          "olt-NE-04-20",
+          "olt-SE-02-01",
+          "olt-SE-02-05",
+          "olt-SE-02-19"
+        ],
+        "expected_resolution": "add DNS + monitoring entries on the vantage side post-merge"
+      }
+    ],
+    "business_rule_conflicts": [
+      {
+        "type": "conflict",
+        "range": "10.20.250.0/24",
+        "cause": "meridian reserves 10.20.250.0/24 for planned builds; vantage already allocated addresses from the same block as free growth space",
+        "vantage_allocated": [
+          "10.20.250.12",
+          "10.20.250.18",
+          "10.20.250.24",
+          "10.20.250.30",
+          "10.20.250.36"
+        ],
+        "meridian_planned": [
+          "10.20.250.10",
+          "10.20.250.15",
+          "10.20.250.20",
+          "10.20.250.25",
+          "10.20.250.30",
+          "10.20.250.35"
+        ],
+        "expected_resolution": "reserved range stays with meridian; vantage growth allocations move with the rest of the renumbering"
+      }
+    ],
+    "do_not_renumber": [
+      {
+        "device": "peer-edge-01",
+        "mgmt_ip": "10.20.9.100",
+        "reason": "external BGP / customer-facing service"
+      },
+      {
+        "device": "peer-edge-02",
+        "mgmt_ip": "10.20.9.101",
+        "reason": "external BGP / customer-facing service"
+      },
+      {
+        "device": "peer-edge-03",
+        "mgmt_ip": "10.20.9.102",
+        "reason": "external BGP / customer-facing service"
+      },
+      {
+        "device": "peer-edge-04",
+        "mgmt_ip": "10.20.9.103",
+        "reason": "external BGP / customer-facing service"
+      }
+    ]
+  },
+  "billing": {
+    "duplicates": [
+      {
+        "type": "duplicate",
+        "customer": "Beacon Manufacturing Corp",
+        "tax_id": "47-2214880",
+        "service_address": "1400 Harbor Industrial Way, Quincy, MA 02171",
+        "meridian_account_id": "BEACON-004417",
+        "vantage_account_id": "VANTAGE-BILL-88213",
+        "expected_resolution": "merge into a single consolidated account and one invoice per period"
+      }
+    ],
+    "gaps": [
+      {
+        "type": "gap",
+        "device_uuid": "4424bc47-f1e7-2d27-b338-24241faaa002",
+        "site": "Oakview Micro-Site 07",
+        "usage_ids": [
+          "VU-2026-06-0447",
+          "VU-2026-07-0447"
+        ],
+        "unbilled_usage_mb": 1715557,
+        "cause": "usage mediated by vantage but never linked to a billing account",
+        "expected_resolution": "surface as unbilled revenue requiring action; rate it under the unified rule set"
+      }
+    ],
+    "business_rule_conflicts": [
+      {
+        "type": "conflict",
+        "name": "rounding + overage rate",
+        "meridian_rule": "round usage up to the next whole GB, flat $10.00/GB overage",
+        "vantage_rule": "bill to the exact MB, $0.012/MB overage",
+        "meridian_file": "billing/rating.cpp",
+        "vantage_file": "app/billing/rating.py"
+      },
+      {
+        "type": "conflict",
+        "name": "discount / tax ordering",
+        "meridian_rule": "loyalty discount applied before tax",
+        "vantage_rule": "loyalty discount applied after tax",
+        "meridian_file": "billing/discounts.cpp",
+        "vantage_file": "app/billing/discounts.py"
+      }
+    ],
+    "accounts_under_test": [
+      "BEACON-004417",
+      "VANTAGE-BILL-88213"
+    ],
+    "periods": [
+      "2026-06",
+      "2026-07"
+    ]
+  }
+}

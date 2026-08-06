@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Meridian OSS - Network Inventory</title>
+<style>
+body { font-family: Verdana, Geneva, sans-serif; font-size: 12px; margin: 0; background: #eceff1; color: #102027; }
+h1 { background: #1b3a4b; color: #fff; margin: 0; padding: 14px 18px; font-size: 16px; letter-spacing: 1px; }
+.wrap { padding: 18px; }
+.tiles { display: flex; gap: 14px; margin-bottom: 18px; }
+.tile { background: #fff; border: 1px solid #b0bec5; padding: 12px 16px; min-width: 150px; }
+.tile .n { font-size: 26px; font-weight: bold; }
+.tile .l { color: #546e7a; text-transform: uppercase; font-size: 10px; }
+table { border-collapse: collapse; background: #fff; width: 100%; }
+th { background: #cfd8dc; text-align: left; padding: 5px 8px; font-size: 11px; }
+td { padding: 4px 8px; border-top: 1px solid #eceff1; }
+tr:hover td { background: #f5f5f5; }
+.err { color: #b71c1c; }
+</style>
+</head>
+<body>
+<h1>MERIDIAN OSS &mdash; NETWORK INVENTORY</h1>
+<div class="wrap">
+  <div class="tiles">
+    <div class="tile"><div class="n" id="siteCount">-</div><div class="l">Sites</div></div>
+    <div class="tile"><div class="n" id="activeCount">-</div><div class="l">Status ACTIVE</div></div>
+    <div class="tile"><div class="n" id="circuitCount">-</div><div class="l">Active circuits</div></div>
+    <div class="tile"><div class="n" id="availCap">-</div><div class="l">Available Mbps</div></div>
+  </div>
+  <p id="err" class="err"></p>
+  <table>
+    <thead><tr><th>ASSET_ID</th><th>SITE_NM</th><th>REGION_CD</th><th>STATUS_CD</th><th>TOWER_REG</th><th>TOTAL</th><th>ALLOC</th><th>AVAIL</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+<script>
+var API = "http://localhost:8081";
+fetch(API + "/sites").then(function (r) { return r.json(); }).then(function (d) {
+  document.getElementById("siteCount").textContent = d.count;
+  var active = 0, avail = 0, html = "";
+  d.sites.forEach(function (s) {
+    if (s.STATUS_CD === 1) active++;
+    avail += s.AVAIL_CAP_MBPS;
+    html += "<tr><td>" + s.ASSET_ID + "</td><td>" + s.SITE_NM + "</td><td>" + s.REGION_CD +
+            "</td><td>" + s.STATUS_CD + " " + s.STATUS_LABEL + "</td><td>" + s.TOWER_REG +
+            "</td><td>" + s.TOTAL_CAP_MBPS + "</td><td>" + s.ALLOC_CAP_MBPS + "</td><td>" +
+            s.AVAIL_CAP_MBPS + "</td></tr>";
+  });
+  document.getElementById("activeCount").textContent = active;
+  document.getElementById("availCap").textContent = avail;
+  document.getElementById("rows").innerHTML = html;
+}).catch(function (e) { document.getElementById("err").textContent = "inventory-api unreachable on :8081 (" + e + ")"; });
+fetch(API + "/circuits").then(function (r) { return r.json(); }).then(function (d) {
+  document.getElementById("circuitCount").textContent = d.active_count;
+});
+</script>
+</body>
+</html>
