@@ -7,13 +7,18 @@ run:    make run          (rebuilds meridian.db from data/)
 binaries land in bin/
 
   mediation      nightly ingest, writes meridian.db
-  inventory-api  :8081   /sites  /circuits
+  inventory-api  :8081   /sites  /circuits  /capacity
   billing-run    monthly invoice register
   invoice-api    :8082   /invoices?acct=...&period=...
   ipam           management address report (10.20.0.0/16)
 
 dashboard/index.html and dashboard/billing.html are static pages, open them in
 a browser with inventory-api and invoice-api running.
+
+dashboard/capacity.html is the sales desk capacity check. it asks
+/capacity?requested=<mbps> and shows what is left at each customer location.
+available = total - allocated, we do not hold back a maintenance buffer.
+serviceable locations come from data/locations.csv.
 
 data/ holds the telemetry drops. billing/accounts/ is the account master.
 

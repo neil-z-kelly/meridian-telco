@@ -6,11 +6,13 @@
 #include "../mediation/capacity.h"
 #include "../mediation/status.h"
 #include "../mediation/circuit_counter.h"
+#include "../mediation/locations.h"
 
 /* inventory api. GET /sites , GET /circuits
    field names are the store's field names, downstream depends on them. */
 
 static Store g_store;
+static std::vector<Location> g_locations;
 
 static std::string site_json(Row &r) {
   char buf[1024];
@@ -81,17 +83,57 @@ static std::string handle_circuits(const HttpRequest &req, int *status) {
   return out;
 }
 
+/* sales capacity check. one row per serviceable customer location.
+   requested= is the bandwidth the rep is quoting, in mbps. */
+static std::string handle_capacity(const HttpRequest &req, int *status) {
+  (void)status;
+  std::map<std::string, std::string> q = req.query;
+  int requested = q.count("requested") ? atoi(q["requested"].c_str()) : 0;
+  std::string market = q.count("market") ? q["market"] : "";
+  std::string out = "{\"rule\":\"AVAIL_CAP_MBPS = TOTAL_CAP_MBPS - ALLOC_CAP_MBPS\",";
+  char n[32];
+  snprintf(n, sizeof(n), "%d", requested);
+  out += "\"requested_mbps\":";
+  out += n;
+  out += ",\"locations\":[";
+  int emitted = 0;
+  for (size_t i = 0; i < g_locations.size(); i++) {
+    Location l = g_locations[i];
+    if (!market.empty() && l.market_cd != market) continue;
+    char buf[1024];
+    snprintf(buf, sizeof(buf),
+             "{\"LOC_CD\":\"%s\",\"CUST_NM\":\"%s\",\"LOC_NM\":\"%s\",\"MARKET_CD\":\"%s\","
+             "\"TOTAL_CAP_MBPS\":%d,\"ALLOC_CAP_MBPS\":%d,\"AVAIL_CAP_MBPS\":%d,"
+             "\"UTILIZATION_PCT\":%d,\"CAN_SUPPORT\":%s}",
+             l.loc_cd.c_str(), json_escape(l.cust_nm).c_str(), json_escape(l.loc_nm).c_str(),
+             l.market_cd.c_str(), l.total_cap_mbps, l.alloc_cap_mbps,
+             location_available_mbps(l),
+             utilization_pct(l.total_cap_mbps, l.alloc_cap_mbps),
+             location_can_support(l, requested) ? "true" : "false");
+    if (emitted) out += ",";
+    out += buf;
+    emitted++;
+  }
+  out += "]}";
+  return out;
+}
+
 int main(int argc, char **argv) {
   std::string dbpath = "meridian.db";
+  std::string locations_csv = "data/locations.csv";
   int port = 8081;
   for (int i = 1; i < argc; i++) {
     std::string a = argv[i];
     if (a == "--db" && i + 1 < argc) dbpath = argv[++i];
+    else if (a == "--locations" && i + 1 < argc) locations_csv = argv[++i];
     else if (a == "--port" && i + 1 < argc) port = atoi(argv[++i]);
   }
   if (!g_store.open(dbpath)) return 1;
+  g_locations = load_locations(locations_csv);
+  fprintf(stderr, "loaded %d serviceable locations\n", (int)g_locations.size());
   std::vector<Route> routes;
   Route r1; r1.prefix = "/sites"; r1.fn = handle_sites; routes.push_back(r1);
   Route r2; r2.prefix = "/circuits"; r2.fn = handle_circuits; routes.push_back(r2);
+  Route r3; r3.prefix = "/capacity"; r3.fn = handle_capacity; routes.push_back(r3);
   return serve(port, routes);
 }

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meridian &middot; Capacity Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1c2536;
+    --paper: #f6f3ec;
+    --rule: #d9d2c4;
+    --brass: #9a6b21;
+    --brass-soft: #f0e4cf;
+    --ok: #2f6b4a;
+    --no: #97362b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px;
+  }
+  header {
+    border-bottom: 3px double var(--ink);
+    padding: 26px 40px 20px;
+  }
+  .brand {
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-size: 12px;
+    letter-spacing: .34em;
+    text-transform: uppercase;
+    color: var(--brass);
+  }
+  h1 {
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-weight: 700;
+    font-size: 27px;
+    margin: 10px 0 8px;
+  }
+  header p { margin: 0; max-width: 640px; line-height: 1.65; color: #4a556b; }
+  main { padding: 26px 40px 60px; }
+  .rule-card {
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--brass);
+    background: #fffdf8;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    max-width: 720px;
+  }
+  .rule-card h2 {
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-size: 13px;
+    margin: 0 0 10px;
+    letter-spacing: .04em;
+  }
+  .formula {
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--brass-soft);
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 2px;
+  }
+  .rule-card .note { margin: 12px 0 0; color: #5b667d; line-height: 1.6; }
+  .controls { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 20px; }
+  label { display: block; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #77839c; margin-bottom: 6px; }
+  input, select {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    background: #fff;
+    color: var(--ink);
+    border-radius: 2px;
+    min-width: 190px;
+  }
+  input:focus, select:focus { outline: 2px solid var(--brass-soft); border-color: var(--brass); }
+  .stats { display: flex; gap: 28px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 14px 0; margin-bottom: 22px; }
+  .stat .v { font-family: "Libre Baskerville", Georgia, serif; font-size: 22px; }
+  .stat .k { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #77839c; }
+  table { width: 100%; border-collapse: collapse; background: #fffdf8; border: 1px solid var(--rule); }
+  thead th {
+    text-align: left;
+    font-family: "Libre Baskerville", Georgia, serif;
+    font-size: 11px;
+    letter-spacing: .06em;
+    padding: 11px 14px;
+    border-bottom: 2px solid var(--ink);
+    white-space: nowrap;
+  }
+  th.num, td.num { text-align: right; }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid #eee7db; vertical-align: middle; }
+  tbody tr:hover { background: #fff8ea; }
+  tr.first td { background: #fdf3e0; }
+  tr.first:hover td { background: #fbecd2; }
+  .code { font-weight: 600; }
+  .cust { font-family: "Libre Baskerville", Georgia, serif; }
+  .loc { color: #5b667d; }
+  .avail { font-weight: 600; }
+  .calc { color: #8b93a7; font-size: 11px; }
+  .verdict { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 9px; border-radius: 2px; white-space: nowrap; }
+  .verdict.ok { color: var(--ok); border: 1px solid #bcd8c6; background: #f0f7f2; }
+  .verdict.no { color: var(--no); border: 1px solid #e3c3bd; background: #fdf1ef; }
+  .bar { height: 5px; background: #ece5d7; margin-top: 6px; }
+  .bar span { display: block; height: 100%; background: var(--brass); }
+  footer { margin-top: 26px; color: #8b93a7; line-height: 1.6; }
+  .err { color: var(--no); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Meridian Communications &middot; Operations Support</div>
+  <h1>Serviceability &amp; Capacity Check</h1>
+  <p>Enter the bandwidth a customer is asking for and this desk tool tells you whether their
+     location can carry it today. Availability is read straight from the inventory of record
+     &mdash; no reservations are held back.</p>
+</header>
+<main>
+  <section class="rule-card">
+    <h2>How availability is calculated</h2>
+    <div class="formula">AVAIL_CAP_MBPS = TOTAL_CAP_MBPS &minus; ALLOC_CAP_MBPS</div>
+    <p class="note">Everything not already allocated is treated as sellable. Meridian does
+       <strong>not</strong> withhold a maintenance buffer, so the figure below is the full
+       remainder of the link.</p>
+  </section>
+
+  <div class="controls">
+    <div>
+      <label for="requested">Requested bandwidth (Mbps)</label>
+      <input id="requested" type="number" min="0" step="50" value="350">
+    </div>
+    <div>
+      <label for="market">Market</label>
+      <select id="market"><option value="">All markets</option></select>
+    </div>
+    <div>
+      <label for="q">Search customer or location</label>
+      <input id="q" type="search" placeholder="e.g. Beacon, Riverside, RIV-01">
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="statLocations">-</div><div class="k">Locations</div></div>
+    <div class="stat"><div class="v" id="statServiceable">-</div><div class="k">Can support request</div></div>
+    <div class="stat"><div class="v" id="statAvail">-</div><div class="k">Available Mbps</div></div>
+    <div class="stat"><div class="v" id="statBuffer">0</div><div class="k">Mbps held in reserve</div></div>
+  </div>
+
+  <p id="err" class="err"></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Loc code</th>
+        <th>Customer</th>
+        <th>Location</th>
+        <th>Market</th>
+        <th class="num">Total</th>
+        <th class="num">Allocated</th>
+        <th class="num">Available</th>
+        <th class="num">Utilization</th>
+        <th>Verdict</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <footer>
+    Source: inventory-api <code>GET /capacity</code> &middot; capacity arithmetic from
+    <code>mediation/capacity.cpp</code> &middot; figures in Mbps.
+  </footer>
+</main>
+<script>
+var API = "http://localhost:8081";
+var LOCATIONS = [];
+
+function requested() {
+  var v = parseInt(document.getElementById("requested").value, 10);
+  return isNaN(v) ? 0 : v;
+}
+
+function render() {
+  var need = requested();
+  var market = document.getElementById("market").value;
+  var q = document.getElementById("q").value.trim().toLowerCase();
+  var rows = "", shown = 0, serviceable = 0, avail = 0, first = true;
+  LOCATIONS.forEach(function (l) {
+    if (market && l.MARKET_CD !== market) return;
+    if (q && (l.CUST_NM + " " + l.LOC_NM + " " + l.LOC_CD).toLowerCase().indexOf(q) === -1) return;
+    shown++;
+    avail += l.AVAIL_CAP_MBPS;
+    var ok = l.AVAIL_CAP_MBPS >= need;
+    if (ok) serviceable++;
+    rows += "<tr class='" + (first ? "first" : "") + "'>" +
+      "<td class='code'>" + l.LOC_CD + "</td>" +
+      "<td class='cust'>" + l.CUST_NM + "</td>" +
+      "<td class='loc'>" + l.LOC_NM + "</td>" +
+      "<td>" + l.MARKET_CD + "</td>" +
+      "<td class='num'>" + l.TOTAL_CAP_MBPS.toLocaleString() + "</td>" +
+      "<td class='num'>" + l.ALLOC_CAP_MBPS.toLocaleString() + "</td>" +
+      "<td class='num avail'>" + l.AVAIL_CAP_MBPS.toLocaleString() +
+        "<div class='calc'>" + l.TOTAL_CAP_MBPS.toLocaleString() + " &minus; " +
+        l.ALLOC_CAP_MBPS.toLocaleString() + "</div></td>" +
+      "<td class='num'>" + l.UTILIZATION_PCT + "%" +
+        "<div class='bar'><span style='width:" + Math.min(l.UTILIZATION_PCT, 100) + "%'></span></div></td>" +
+      "<td><span class='verdict " + (ok ? "ok" : "no") + "'>" +
+        (ok ? "Can support" : "Insufficient") + "</span></td></tr>";
+    first = false;
+  });
+  document.getElementById("rows").innerHTML = rows ||
+    "<tr><td colspan='9' style='padding:22px;text-align:center;color:#8b93a7'>No locations match.</td></tr>";
+  document.getElementById("statLocations").textContent = shown;
+  document.getElementById("statServiceable").textContent = serviceable;
+  document.getElementById("statAvail").textContent = avail.toLocaleString();
+}
+
+fetch(API + "/capacity").then(function (r) { return r.json(); }).then(function (d) {
+  LOCATIONS = d.locations;
+  var markets = [], sel = document.getElementById("market");
+  LOCATIONS.forEach(function (l) { if (markets.indexOf(l.MARKET_CD) === -1) markets.push(l.MARKET_CD); });
+  markets.sort().forEach(function (m) {
+    var o = document.createElement("option");
+    o.value = m; o.textContent = m; sel.appendChild(o);
+  });
+  render();
+}).catch(function (e) {
+  document.getElementById("err").textContent = "inventory-api unreachable on :8081 (" + e + ")";
+});
+
+["requested", "market", "q"].forEach(function (id) {
+  document.getElementById(id).addEventListener("input", render);
+  document.getElementById(id).addEventListener("change", render);
+});
+</script>
+</body>
+</html>
