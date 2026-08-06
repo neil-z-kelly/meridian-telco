@@ -42,29 +42,42 @@
   }
   header p { margin: 0; max-width: 640px; line-height: 1.65; color: #4a556b; }
   main { padding: 26px 40px 60px; }
-  .rule-card {
+  th.avail-head { position: relative; cursor: help; }
+  th.avail-head .label { border-bottom: 1px dotted var(--brass); }
+  .tip {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 330px;
+    z-index: 5;
+    display: none;
+    text-align: left;
+    background: #fffdf8;
     border: 1px solid var(--rule);
     border-left: 4px solid var(--brass);
-    background: #fffdf8;
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    max-width: 720px;
+    box-shadow: 0 6px 18px rgba(28,37,54,.16);
+    padding: 14px 16px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: normal;
+    font-weight: 400;
   }
-  .rule-card h2 {
+  th.avail-head:hover .tip, th.avail-head:focus .tip { display: block; }
+  .tip h3 {
     font-family: "Libre Baskerville", Georgia, serif;
-    font-size: 13px;
-    margin: 0 0 10px;
-    letter-spacing: .04em;
+    font-size: 12px;
+    margin: 0 0 9px;
   }
   .formula {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     background: var(--brass-soft);
     display: inline-block;
-    padding: 7px 12px;
+    padding: 7px 10px;
     border-radius: 2px;
   }
-  .rule-card .note { margin: 12px 0 0; color: #5b667d; line-height: 1.6; }
+  .tip .note { margin: 11px 0 0; color: #5b667d; line-height: 1.6; font-weight: 400; font-size: 12px; }
   .controls { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 20px; }
   label { display: block; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #77839c; margin-bottom: 6px; }
   input, select {
@@ -119,14 +132,6 @@
      &mdash; no reservations are held back.</p>
 </header>
 <main>
-  <section class="rule-card">
-    <h2>How availability is calculated</h2>
-    <div class="formula">AVAIL_CAP_MBPS = TOTAL_CAP_MBPS &minus; ALLOC_CAP_MBPS</div>
-    <p class="note">Everything not already allocated is treated as sellable. Meridian does
-       <strong>not</strong> withhold a maintenance buffer, so the figure below is the full
-       remainder of the link.</p>
-  </section>
-
   <div class="controls">
     <div>
       <label for="requested">Requested bandwidth (Mbps)</label>
@@ -159,7 +164,16 @@
         <th>Market</th>
         <th class="num">Total</th>
         <th class="num">Allocated</th>
-        <th class="num">Available</th>
+        <th class="num avail-head" tabindex="0">
+          <span class="label">Available</span>
+          <div class="tip">
+            <h3>How availability is calculated</h3>
+            <div class="formula">AVAIL_CAP_MBPS = TOTAL_CAP_MBPS &minus; ALLOC_CAP_MBPS</div>
+            <p class="note">Everything not already allocated is treated as sellable. Meridian
+               does <strong>not</strong> withhold a maintenance buffer, so this is the full
+               remainder of the link.</p>
+          </div>
+        </th>
         <th class="num">Utilization</th>
         <th>Verdict</th>
       </tr>
