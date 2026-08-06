@@ -1,15 +1,15 @@
 #include "capacity.h"
+#include "unified_inventory_rules/capacity.h"
 
-/* capacity math. total minus allocated, that is it.
-   RS 2009-11 */
+/* Delegate to the shared canonical rule (unified-inventory-rules). */
 
-int available_capacity(int total_mbps, int allocated_mbps) {
-  int avail = total_mbps - allocated_mbps;
-  if (avail < 0) avail = 0;
-  return avail;
+int available_capacity(int total_mbps, int allocated_mbps, int maintenance_buffer_mbps) {
+  return unified_inventory_rules::available_capacity(total_mbps, allocated_mbps,
+                                                     maintenance_buffer_mbps);
 }
 
-int utilization_pct(int total_mbps, int allocated_mbps) {
-  if (total_mbps <= 0) return 0;
-  return (allocated_mbps * 100) / total_mbps;
+int utilization_pct(int total_mbps, int allocated_mbps, int maintenance_buffer_mbps) {
+  double pct = unified_inventory_rules::utilization_pct(total_mbps, allocated_mbps,
+                                                        maintenance_buffer_mbps);
+  return (int)(pct + 0.5);
 }

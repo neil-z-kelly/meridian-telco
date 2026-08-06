@@ -17,8 +17,12 @@ a browser with inventory-api and invoice-api running.
 
 dashboard/capacity.html is the sales desk capacity check. it asks
 /capacity?requested=<mbps> and shows what is left at each customer location.
-available = total - allocated, we do not hold back a maintenance buffer.
-serviceable locations come from data/locations.csv.
+available = total - allocated - maintenance buffer. the arithmetic comes from
+the shared unified-inventory-rules submodule (third_party/), the same rule
+vantage-net uses. serviceable locations come from data/locations.csv.
+
+this repo uses a git submodule; clone with --recurse-submodules (or run
+git submodule update --init after cloning) before building.
 
 data/ holds the telemetry drops. billing/accounts/ is the account master.
 
