@@ -23,4 +23,3 @@ serviceable locations come from data/locations.csv.
 data/ holds the telemetry drops. billing/accounts/ is the account master.
 
 contacts: ops-eng (pager), billing questions -> finance
-
