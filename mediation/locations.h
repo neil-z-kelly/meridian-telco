@@ -13,6 +13,10 @@ struct Location {
   std::string market_cd;
   int total_cap_mbps;
   int alloc_cap_mbps;
+  /* bandwidth held back for maintenance windows. not sellable. 0 means the
+     location holds nothing back, which is what every row shipped with before
+     the column existed. */
+  int buffer_mbps;
 };
 
 std::vector<Location> load_locations(const std::string &csv_path);

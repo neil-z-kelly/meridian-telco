@@ -17,8 +17,18 @@ a browser with inventory-api and invoice-api running.
 
 dashboard/capacity.html is the sales desk capacity check. it asks
 /capacity?requested=<mbps> and shows what is left at each customer location.
-available = total - allocated, we do not hold back a maintenance buffer.
-serviceable locations come from data/locations.csv.
+available = total - allocated - maintenance buffer. utilization counts the
+buffer as used. serviceable locations come from data/locations.csv, whose
+BUFFER_MBPS column carries the buffer; every row ships at 0 today, so quoted
+availability is unchanged until real buffer values are loaded.
+
+capacity arithmetic is not written here. it is vendored in
+vendor/oss-capacity/ from the canonical rules repo
+
+  https://github.com/joannayang371/unified-inventory-rules
+
+which vantage-net consumes through the oss-capacity python package. change the
+rule there, not here (see vendor/oss-capacity/README).
 
 data/ holds the telemetry drops. billing/accounts/ is the account master.
 

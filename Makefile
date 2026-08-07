@@ -3,7 +3,9 @@ CXXFLAGS = -O2 -Wall
 LDFLAGS = -lsqlite3
 BIN = bin
 
-MEDIATION_OBJS = mediation/capacity.o mediation/status.o mediation/circuit_counter.o mediation/store.o mediation/locations.o
+# capacity math lives in vendor/oss-capacity, copied from the canonical rules
+# repo (see vendor/oss-capacity/README). do not edit it here.
+MEDIATION_OBJS = vendor/oss-capacity/capacity.o mediation/status.o mediation/circuit_counter.o mediation/store.o mediation/locations.o
 BILLING_OBJS = billing/rating.o billing/discounts.o billing/accounts.o
 
 all: $(BIN)/mediation $(BIN)/inventory-api $(BIN)/billing-run $(BIN)/invoice-api $(BIN)/ipam

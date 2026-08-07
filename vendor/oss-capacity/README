@@ -1,0 +1,14 @@
+vendored capacity math
+======================
+
+capacity.h / capacity.cpp are copied verbatim from the canonical rules repo:
+
+  https://github.com/joannayang371/unified-inventory-rules  (cpp/capacity.{h,cpp})
+
+do not edit them here. change the rule upstream, run its golden-vector tests
+(make test), then re-copy:
+
+  cp <unified-inventory-rules>/cpp/capacity.{h,cpp} vendor/oss-capacity/
+
+vantage-net consumes the same rule through the oss-capacity python package, so
+the two systems stay in agreement.
