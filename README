@@ -3,12 +3,16 @@ meridian oss
 
 build:  make
 run:    make run          (rebuilds meridian.db from data/)
+check:  make check        (billing rule checks, bin/billing-test)
+reg:    make register     (invoice register for 2026-07)
+demo:   make demo         (invoice-api :8082 + dashboard pages on :8083)
 
 binaries land in bin/
 
   mediation      nightly ingest, writes meridian.db
   inventory-api  :8081   /sites  /circuits  /capacity
-  billing-run    monthly invoice register
+  billing-run    monthly invoice register, --json for the reconciliation feed
+  billing-test   billing rule checks
   invoice-api    :8082   /invoices?acct=...&period=...
   ipam           management address report (10.20.0.0/16)
 
@@ -21,5 +25,22 @@ available = total - allocated, we do not hold back a maintenance buffer.
 serviceable locations come from data/locations.csv.
 
 data/ holds the telemetry drops. billing/accounts/ is the account master.
+
+billing rules, one file each, all of them go through billing/invoice.cpp:
+
+  rating.cpp      whole gigabytes, partial gigs round up, $10 a gig over plan
+  proration.cpp   30 day billing month, mid cycle plan changes split on it
+  promo.cpp       promo credits expire at the end of the cycle they were issued
+  suspension.cpp  a suspended line is billed the full month, no credit
+  lines.cpp       3-9 lines 5% off recurring, 10+ lines 10%
+  latefee.cpp     10 day grace after the due date, then 1.5% of the balance
+  tax.cpp         GST/HST on the pre discount amount, PST/QST on what is paid
+  discounts.cpp   loyalty credit off the subtotal
+
+the provinces we bill are BC, AB, ON and QC. the province is on the account
+record (PROVINCE=) and on the invoice register page.
+
+vantage-telco rates the same accounts differently. tools/parity in that repo
+runs both registers off the same usage feed and prints the differences.
 
 contacts: ops-eng (pager), billing questions -> finance
