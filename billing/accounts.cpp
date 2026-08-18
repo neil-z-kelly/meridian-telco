@@ -9,9 +9,16 @@
 
 static Account parse_rec(const std::string &path) {
   Account a;
+  a.plan_fee = 0.0;
   a.included_gb = 0;
+  a.prev_plan_fee = 0.0;
+  a.plan_chg_day = 0;
+  a.line_cnt = 1;
+  a.promo_amt = 0.0;
+  a.susp_start = 0;
+  a.susp_end = 0;
+  a.prior_bal = 0.0;
   a.loyalty_pct = 0.0;
-  a.tax_pct = 0.0;
   std::ifstream f(path.c_str());
   std::string line;
   while (std::getline(f, line)) {
@@ -20,13 +27,24 @@ static Account parse_rec(const std::string &path) {
     std::string k = line.substr(0, eq);
     std::string v = line.substr(eq + 1);
     if (k == "ACCT_ID") a.acct_id = v;
+    else if (k == "BILLING_REF") a.billing_ref = v;
     else if (k == "CUST_NM") a.cust_nm = v;
     else if (k == "TAX_ID") a.tax_id = v;
     else if (k == "SVC_ADDR") a.svc_addr = v;
+    else if (k == "PROVINCE") a.province = v;
     else if (k == "PLAN_CD") a.plan_cd = v;
+    else if (k == "PLAN_FEE") a.plan_fee = atof(v.c_str());
     else if (k == "INCLUDED_GB") a.included_gb = atol(v.c_str());
+    else if (k == "PREV_PLAN_FEE") a.prev_plan_fee = atof(v.c_str());
+    else if (k == "PLAN_CHG_DAY") a.plan_chg_day = atoi(v.c_str());
+    else if (k == "LINE_CNT") a.line_cnt = atoi(v.c_str());
+    else if (k == "PROMO_AMT") a.promo_amt = atof(v.c_str());
+    else if (k == "PROMO_DT") a.promo_dt = v;
+    else if (k == "SUSP_START") a.susp_start = atoi(v.c_str());
+    else if (k == "SUSP_END") a.susp_end = atoi(v.c_str());
+    else if (k == "PRIOR_BAL") a.prior_bal = atof(v.c_str());
+    else if (k == "PRIOR_DUE") a.prior_due = v;
     else if (k == "LOYALTY_PCT") a.loyalty_pct = atof(v.c_str());
-    else if (k == "TAX_PCT") a.tax_pct = atof(v.c_str());
   }
   return a;
 }

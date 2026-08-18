@@ -1,17 +1,14 @@
 #include "discounts.h"
+#include "money.h"
 
-/* loyalty comes off first, tax is charged on what the customer actually pays.
+/* loyalty credit. it comes off the subtotal, before the provincial component of
+   the tax is worked out. see billing/tax.cpp for what that means in practice.
    finance signed off on this in 2010, do not change without a ticket. */
 
+double loyalty_discount(double amount, double loyalty_pct) {
+  return money(amount * loyalty_pct / 100.0);
+}
+
 double apply_loyalty(double amount, double loyalty_pct) {
-  return amount - (amount * loyalty_pct / 100.0);
-}
-
-double apply_tax(double amount, double tax_pct) {
-  return amount + (amount * tax_pct / 100.0);
-}
-
-double invoice_total(double charges, double loyalty_pct, double tax_pct) {
-  double discounted = apply_loyalty(charges, loyalty_pct);
-  return apply_tax(discounted, tax_pct);
+  return money(amount - loyalty_discount(amount, loyalty_pct));
 }

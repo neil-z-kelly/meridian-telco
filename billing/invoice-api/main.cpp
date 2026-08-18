@@ -3,8 +3,8 @@
 #include <string>
 #include "../../inventory-api/httpd.h"
 #include "../accounts.h"
+#include "../invoice.h"
 #include "../rating.h"
-#include "../discounts.h"
 
 /* invoice api. GET /invoices?acct=BEACON-004417[&period=2026-07]
    GET /invoices returns every account for the periods we have usage for. */
@@ -13,20 +13,25 @@ static std::vector<Account> g_accts;
 static std::vector<UsageRec> g_usage;
 
 static std::string invoice_json(const Account &a, const UsageRec &u) {
-  double charges = rate_overage(u.usage_mb, a.included_gb);
-  double discounted = apply_loyalty(charges, a.loyalty_pct);
-  double total = apply_tax(discounted, a.tax_pct);
-  char buf[1400];
+  Invoice inv = compute_invoice(a, u);
+  char buf[2400];
   snprintf(buf, sizeof(buf),
-           "{\"ACCT_ID\":\"%s\",\"CUST_NM\":\"%s\",\"TAX_ID\":\"%s\",\"SVC_ADDR\":\"%s\","
-           "\"PERIOD\":\"%s\",\"USAGE_MB\":%ld,\"USAGE_GB_RATED\":%ld,\"INCLUDED_GB\":%ld,"
-           "\"OVERAGE_GB\":%ld,\"OVERAGE_CHARGES\":%.2f,\"LOYALTY_PCT\":%.2f,"
-           "\"AFTER_DISCOUNT\":%.2f,\"TAX_PCT\":%.2f,\"INVOICE_TOTAL\":%.2f}",
-           a.acct_id.c_str(), json_escape(a.cust_nm).c_str(), a.tax_id.c_str(),
-           json_escape(a.svc_addr).c_str(), u.period.c_str(), u.usage_mb,
-           usage_gb_rounded(u.usage_mb), a.included_gb,
-           overage_gb(u.usage_mb, a.included_gb), charges, a.loyalty_pct,
-           discounted, a.tax_pct, total);
+           "{\"ACCT_ID\":\"%s\",\"BILLING_REF\":\"%s\",\"CUST_NM\":\"%s\",\"TAX_ID\":\"%s\","
+           "\"SVC_ADDR\":\"%s\",\"PROVINCE\":\"%s\",\"PERIOD\":\"%s\",\"PLAN_CD\":\"%s\","
+           "\"USAGE_MB\":%ld,\"USAGE_GB_RATED\":%ld,\"INCLUDED_GB\":%ld,\"OVERAGE_GB\":%ld,"
+           "\"PLAN_CHARGE\":%.2f,\"LINE_DISCOUNT\":%.2f,\"RECURRING\":%.2f,"
+           "\"OVERAGE_CHARGES\":%.2f,\"SUSPENSION_CREDIT\":%.2f,\"PROMO_CREDIT\":%.2f,"
+           "\"LATE_FEE\":%.2f,\"SUBTOTAL\":%.2f,\"LOYALTY_PCT\":%.2f,\"LOYALTY\":%.2f,"
+           "\"FED_TAX_LBL\":\"%s\",\"FED_TAX\":%.2f,\"PROV_TAX_LBL\":\"%s\",\"PROV_TAX\":%.2f,"
+           "\"INVOICE_TOTAL\":%.2f}",
+           a.acct_id.c_str(), a.billing_ref.c_str(), json_escape(a.cust_nm).c_str(),
+           a.tax_id.c_str(), json_escape(a.svc_addr).c_str(), a.province.c_str(),
+           u.period.c_str(), a.plan_cd.c_str(), inv.usage_mb, inv.usage_gb_rated,
+           a.included_gb, inv.overage_gb, inv.plan_charge, inv.line_discount, inv.recurring,
+           inv.overage_charges, inv.suspension_credit_amt, inv.promo_credit_amt,
+           inv.late_fee_amt, inv.subtotal, a.loyalty_pct, inv.loyalty_amt,
+           inv.federal_label.c_str(), inv.federal_tax_amt, inv.provincial_label.c_str(),
+           inv.provincial_tax_amt, inv.total);
   return buf;
 }
 
