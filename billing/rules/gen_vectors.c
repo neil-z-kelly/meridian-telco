@@ -161,11 +161,13 @@ static void write_invoice_vectors(FILE *f) {
   };
   size_t i;
 
-  fprintf(f, "acct_id,province,plan_fee,included_gb,prev_plan_fee,plan_chg_day,line_cnt,"
+  /* The charge columns are named as the engines name them, so a vector row and
+     a rated invoice exported from either service read the same way. */
+  fprintf(f, "account_id,province,plan_fee,included_gb,prev_plan_fee,plan_chg_day,line_cnt,"
              "promo_amt,promo_dt,susp_start,susp_end,prior_bal,prior_due,loyalty_pct,"
              "usage_mb,period,usage_gb_rated,overage_gb,plan_charge,line_discount,recurring,"
-             "overage_charges,suspension_credit,promo_credit,late_fee,subtotal,loyalty,"
-             "federal_tax,federal_label,provincial_tax,provincial_label,total\n");
+             "overage_charges,suspension_credit,promo_credit,late_fee,subtotal,loyalty_discount,"
+             "federal_tax,federal_tax_label,provincial_tax,provincial_tax_label,invoice_total\n");
 
   for (i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
     const vector_case *c = &cases[i];

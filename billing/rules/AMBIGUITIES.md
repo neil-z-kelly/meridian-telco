@@ -27,18 +27,21 @@ this one wants an answer.
 The library rates one usage figure per invoice; who aggregates is the caller's
 business, and the callers do not agree. `billing-run` and vantage's python
 emit one invoice per usage row, each carrying a full plan charge, while the
-Java report sums every row it sees for an account. With one row per account
-per period in the fixtures the three agree by accident. If a second row can
-ever arrive the answer is either "sum the megabytes onto one invoice" or "one
-invoice per row", and it changes the plan charge, not just the overage.
+Java report used to sum every row it saw for an account. The report no longer
+rates anything, so today the question is only about the two rating callers:
+with one row per account per period in the fixtures they agree by accident. If
+a second row can ever arrive the answer is either "sum the megabytes onto one
+invoice" or "one invoice per row", and it changes the plan charge, not just the
+overage.
 
-## 3. Tax in the Java report module
+## 3. Archived reports rendered at the old flat rate
 
-`RatingEngine` used a single flat 6.25% rate with no province at all. The
-report is now checked against the shared vectors for the rules it can compute,
-but its tax figures cannot be reconciled until someone decides whether the
-report should use the province table (its seed data carries no province, so
-this is a data question) or keep quoting a blended rate.
+The Java report used to compute tax itself, at a single flat 6.25% with no
+province at all, so every artifact the NOC has archived quotes that rate. The
+module now prints the tax lines the rules assessed, which means new artifacts
+for the same cycle will not match the filed ones. Nobody has said whether past
+cycles should be re-rendered, or left as the record of what was invoiced at the
+time.
 
 ## 4. Rounding an amount below zero
 

@@ -7,8 +7,8 @@
    decide what a customer owes. meridian-telco links them into the C++ billing
    binaries; vantage-telco vendors the same two files and calls the compiled
    object through ctypes. Nothing else may restate a rule in another language:
-   tools/rules_drift.sh here and tools/vendor/check_drift.py in vantage-telco
-   fail the build when the two copies stop matching byte for byte.
+   tools/vendor/check_drift.py in vantage-telco fails that build when the two
+   copies stop matching byte for byte.
 
    Every rule keeps the legacy meridian behaviour. Where vantage-telco had
    drifted, the legacy answer is the one implemented here and the divergence is
