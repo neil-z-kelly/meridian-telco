@@ -1,0 +1,95 @@
+{
+  "version": "1",
+  "source": "meridian-telco billing/rules/telco_rules.c",
+  "generated_by": "bin/rules-vectors (make vectors)",
+  "rules": {
+    "R-RATE": [
+      {"usage_mb": 0, "included_gb": 2000, "overage_gb": 0, "amount": 0.00},
+      {"usage_mb": 1000, "included_gb": 2000, "overage_gb": 0, "amount": 0.00},
+      {"usage_mb": 2048000, "included_gb": 2000, "overage_gb": 0, "amount": 0.00},
+      {"usage_mb": 2048001, "included_gb": 2000, "overage_gb": 1, "amount": 10.00},
+      {"usage_mb": 2049000, "included_gb": 2000, "overage_gb": 1, "amount": 10.00},
+      {"usage_mb": 3073, "included_gb": 2, "overage_gb": 2, "amount": 20.00},
+      {"usage_mb": 3000000, "included_gb": 2000, "overage_gb": 930, "amount": 9300.00}
+    ],
+    "R-PRORATE": [
+      {"monthly_fee": 640.00, "previous_monthly_fee": 0.00, "change_day": 0, "amount": 640.00},
+      {"monthly_fee": 300.00, "previous_monthly_fee": 600.00, "change_day": 16, "amount": 450.00},
+      {"monthly_fee": 310.00, "previous_monthly_fee": 620.00, "change_day": 31, "amount": 620.00},
+      {"monthly_fee": 280.00, "previous_monthly_fee": 560.00, "change_day": 15, "amount": 410.66},
+      {"monthly_fee": 4200.00, "previous_monthly_fee": 2400.00, "change_day": 4, "amount": 4020.00}
+    ],
+    "R-LINES": [
+      {"recurring_charge": 1000.00, "line_count": 1, "pct": 0.00, "amount": 0.00},
+      {"recurring_charge": 1000.00, "line_count": 3, "pct": 5.00, "amount": 50.00},
+      {"recurring_charge": 1000.00, "line_count": 9, "pct": 5.00, "amount": 50.00},
+      {"recurring_charge": 1000.00, "line_count": 12, "pct": 10.00, "amount": 100.00},
+      {"recurring_charge": 4200.00, "line_count": 14, "pct": 10.00, "amount": 420.00}
+    ],
+    "R-PROMO": [
+      {"amount": 120.00, "issued_on": "2026-07-04", "period": "2026-07", "live": true, "credit": 120.00},
+      {"amount": 120.00, "issued_on": "2026-06-24", "period": "2026-07", "live": false, "credit": 0.00},
+      {"amount": 120.00, "issued_on": "2026-05-20", "period": "2026-07", "live": false, "credit": 0.00},
+      {"amount": 0.00, "issued_on": "2026-07-04", "period": "2026-07", "live": true, "credit": 0.00}
+    ],
+    "R-SUSPEND": [
+      {"monthly_fee": 620.00, "start_day": 10, "end_day": 14, "days": 5, "credit": 0.00},
+      {"monthly_fee": 620.00, "start_day": 0, "end_day": 0, "days": 0, "credit": 0.00},
+      {"monthly_fee": 620.00, "start_day": 1, "end_day": 31, "days": 31, "credit": 0.00}
+    ],
+    "R-LATEFEE": [
+      {"prior_balance": 500.00, "due_date": "2026-06-30", "period": "2026-07", "days_past_due": 1, "fee": 0.00},
+      {"prior_balance": 500.00, "due_date": "2026-06-01", "period": "2026-07", "days_past_due": 30, "fee": 7.50},
+      {"prior_balance": 700.90, "due_date": "2026-06-15", "period": "2026-07", "days_past_due": 16, "fee": 10.51},
+      {"prior_balance": 0.00, "due_date": "2026-06-01", "period": "2026-07", "days_past_due": 30, "fee": 0.00}
+    ],
+    "R-TAXBASE": [
+      {"province": "BC", "subtotal": 100.00, "loyalty_discount": 10.00, "federal_label": "GST", "federal_pct": 5, "federal_tax": 5.00, "provincial_label": "PST", "provincial_pct": 7, "provincial_tax": 6.30},
+      {"province": "AB", "subtotal": 100.00, "loyalty_discount": 10.00, "federal_label": "GST", "federal_pct": 5, "federal_tax": 5.00, "provincial_label": "", "provincial_pct": 0, "provincial_tax": 0.00},
+      {"province": "ON", "subtotal": 100.00, "loyalty_discount": 10.00, "federal_label": "HST", "federal_pct": 13, "federal_tax": 13.00, "provincial_label": "", "provincial_pct": 0, "provincial_tax": 0.00},
+      {"province": "QC", "subtotal": 1000.00, "loyalty_discount": 100.00, "federal_label": "GST", "federal_pct": 5, "federal_tax": 50.00, "provincial_label": "QST", "provincial_pct": 9.975, "provincial_tax": 89.78},
+      {"province": "ZZ", "subtotal": 100.00, "loyalty_discount": 10.00, "federal_label": "GST", "federal_pct": 5, "federal_tax": 5.00, "provincial_label": "", "provincial_pct": 0, "provincial_tax": 0.00}
+    ],
+    "R-LOYALTY": [
+      {"subtotal": 1000.00, "loyalty_pct": 8.00, "discount": 80.00},
+      {"subtotal": 1000.00, "loyalty_pct": 0.00, "discount": 0.00},
+      {"subtotal": 4321.55, "loyalty_pct": 4.00, "discount": 172.86}
+    ],
+    "R-ROUND": [
+      {"amount": 1.005000, "rounded": 1.00},
+      {"amount": 1.004999, "rounded": 1.00},
+      {"amount": 2.675000, "rounded": 2.68},
+      {"amount": 1234.564900, "rounded": 1234.56}
+    ]
+  },
+  "invoices": [
+      {
+        "name": "bc enterprise, mid cycle upgrade, promo from last cycle",
+        "account": {"province": "BC", "plan_fee": 4200.00, "included_gb": 5000, "prev_plan_fee": 2400.00, "plan_change_day": 4, "line_count": 14, "promo_amount": 350.00, "promo_issued_on": "2026-06-24", "suspension_start_day": 0, "suspension_end_day": 0, "prior_balance": 700.90, "prior_due_date": "2026-06-30", "loyalty_pct": 4.00},
+        "usage_mb": 5300000,
+        "period": "2026-07",
+        "expect": {"usage_gb_rated": 5176, "overage_gb": 176, "plan_charge": 4020.00, "line_discount": 402.00, "recurring": 3618.00, "overage_charges": 1760.00, "suspension_credit": 0.00, "promo_credit": 0.00, "late_fee": 0.00, "subtotal": 5378.00, "loyalty_discount": 215.12, "federal_label": "GST", "federal_tax": 268.90, "provincial_label": "PST", "provincial_tax": 361.40, "total": 5793.18}
+      },
+      {
+        "name": "on business, suspended fortnight, promo in cycle",
+        "account": {"province": "ON", "plan_fee": 650.00, "included_gb": 500, "prev_plan_fee": 0.00, "plan_change_day": 0, "line_count": 2, "promo_amount": 120.00, "promo_issued_on": "2026-07-04", "suspension_start_day": 10, "suspension_end_day": 24, "prior_balance": 0.00, "prior_due_date": "", "loyalty_pct": 0.00},
+        "usage_mb": 620000,
+        "period": "2026-07",
+        "expect": {"usage_gb_rated": 606, "overage_gb": 106, "plan_charge": 650.00, "line_discount": 0.00, "recurring": 650.00, "overage_charges": 1060.00, "suspension_credit": 0.00, "promo_credit": 120.00, "late_fee": 0.00, "subtotal": 1590.00, "loyalty_discount": 0.00, "federal_label": "HST", "federal_tax": 206.70, "provincial_label": "", "provincial_tax": 0.00, "total": 1796.70}
+      },
+      {
+        "name": "qc metro burst, late balance, loyalty",
+        "account": {"province": "QC", "plan_fee": 310.00, "included_gb": 250, "prev_plan_fee": 0.00, "plan_change_day": 0, "line_count": 4, "promo_amount": 0.00, "promo_issued_on": "", "suspension_start_day": 0, "suspension_end_day": 0, "prior_balance": 480.25, "prior_due_date": "2026-06-01", "loyalty_pct": 2.50},
+        "usage_mb": 300000,
+        "period": "2026-07",
+        "expect": {"usage_gb_rated": 293, "overage_gb": 43, "plan_charge": 310.00, "line_discount": 15.50, "recurring": 294.50, "overage_charges": 430.00, "suspension_credit": 0.00, "promo_credit": 0.00, "late_fee": 7.20, "subtotal": 731.70, "loyalty_discount": 18.29, "federal_label": "GST", "federal_tax": 36.59, "provincial_label": "QST", "provincial_tax": 71.16, "total": 821.16}
+      },
+      {
+        "name": "ab flat rate, no usage over allowance",
+        "account": {"province": "AB", "plan_fee": 2400.00, "included_gb": 3000, "prev_plan_fee": 0.00, "plan_change_day": 0, "line_count": 11, "promo_amount": 0.00, "promo_issued_on": "", "suspension_start_day": 0, "suspension_end_day": 0, "prior_balance": 0.00, "prior_due_date": "", "loyalty_pct": 8.00},
+        "usage_mb": 1024,
+        "period": "2026-07",
+        "expect": {"usage_gb_rated": 1, "overage_gb": 0, "plan_charge": 2400.00, "line_discount": 240.00, "recurring": 2160.00, "overage_charges": 0.00, "suspension_credit": 0.00, "promo_credit": 0.00, "late_fee": 0.00, "subtotal": 2160.00, "loyalty_discount": 172.80, "federal_label": "GST", "federal_tax": 108.00, "provincial_label": "", "provincial_tax": 0.00, "total": 2095.20}
+      }
+  ]
+}

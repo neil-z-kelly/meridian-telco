@@ -13,6 +13,8 @@ binaries land in bin/
   inventory-api  :8081   /sites  /circuits  /capacity
   billing-run    monthly invoice register, --json for the reconciliation feed
   billing-test   billing rule checks
+  rules-vectors  writes the shared conformance vectors on stdout
+  libtelcorules.so  the shared rule library, what vantage loads with ctypes
   invoice-api    :8082   /invoices?acct=...&period=...
   ipam           management address report (10.20.0.0/16)
 
@@ -26,21 +28,32 @@ serviceable locations come from data/locations.csv.
 
 data/ holds the telemetry drops. billing/accounts/ is the account master.
 
-billing rules, one file each, all of them go through billing/invoice.cpp:
+billing rules all live in billing/rules/telco_rules.c. that file is the only
+implementation of them anywhere, meridian and vantage both run it:
 
-  rating.cpp      whole gigabytes, partial gigs round up, $10 a gig over plan
-  proration.cpp   30 day billing month, mid cycle plan changes split on it
-  promo.cpp       promo credits expire at the end of the cycle they were issued
-  suspension.cpp  a suspended line is billed the full month, no credit
-  lines.cpp       3-9 lines 5% off recurring, 10+ lines 10%
-  latefee.cpp     10 day grace after the due date, then 1.5% of the balance
-  tax.cpp         GST/HST on the pre discount amount, PST/QST on what is paid
-  discounts.cpp   loyalty credit off the subtotal
+  R-RATE      whole gigabytes, partial gigs round up, $10 a gig over plan
+  R-PRORATE   30 day billing month, mid cycle plan changes split on it
+  R-PROMO     promo credits expire at the end of the cycle they were issued
+  R-SUSPEND   a suspended line is billed the full month, no credit
+  R-LINES     3-9 lines 5% off recurring, 10+ lines 10%
+  R-LATEFEE   10 day grace after the due date, then 1.5% of the balance
+  R-TAXBASE   GST/HST on the pre discount amount, PST/QST on what is paid
+  R-LOYALTY   loyalty credit off the subtotal, applied after tax
+  R-ROUND     each charge line rounded to cents, the total is their sum
+
+billing/invoice.cpp marshals an account into the library and copies the result
+back out, it does not decide anything. billing/rules/RULES.md has the rule by
+rule history, including the three questions that are flagged as undecided.
+
+make vectors writes billing/rules/conformance/vectors.json from the library.
+that file is what consumers that cannot link the object are held to (today the
+vantage java report module). make check fails if it is stale.
 
 the provinces we bill are BC, AB, ON and QC. the province is on the account
 record (PROVINCE=) and on the invoice register page.
 
-vantage-telco rates the same accounts differently. tools/parity in that repo
-runs both registers off the same usage feed and prints the differences.
+vantage-telco vendors billing/rules/ and calls the compiled object through
+ctypes, so both registers rate the same. tools/parity in that repo runs them
+side by side off the same usage feed and has to come out clean.
 
 contacts: ops-eng (pager), billing questions -> finance
