@@ -26,21 +26,28 @@ serviceable locations come from data/locations.csv.
 
 data/ holds the telemetry drops. billing/accounts/ is the account master.
 
-billing rules, one file each, all of them go through billing/invoice.cpp:
+the billing rules all live in billing/rules/billing_rules.c, which
+billing/invoice.cpp links directly. vantage-telco vendors that same file and
+calls it through ctypes, so it is the only copy of these rules anywhere:
 
-  rating.cpp      whole gigabytes, partial gigs round up, $10 a gig over plan
-  proration.cpp   30 day billing month, mid cycle plan changes split on it
-  promo.cpp       promo credits expire at the end of the cycle they were issued
-  suspension.cpp  a suspended line is billed the full month, no credit
-  lines.cpp       3-9 lines 5% off recurring, 10+ lines 10%
-  latefee.cpp     10 day grace after the due date, then 1.5% of the balance
-  tax.cpp         GST/HST on the pre discount amount, PST/QST on what is paid
-  discounts.cpp   loyalty credit off the subtotal
+  rating          whole gigabytes, partial gigs round up, $10 a gig over plan
+  proration       30 day billing month, mid cycle plan changes split on it
+  promo           promo credits expire at the end of the cycle they were issued
+  suspension      a suspended line is billed the full month, no credit
+  lines           3-9 lines 5% off recurring, 10+ lines 10%
+  latefee         10 day grace after the due date, then 1.5% of the balance
+  tax             GST/HST on the pre discount amount, PST/QST on what is paid
+  loyalty         loyalty credit off the subtotal
+
+billing/rules/README says how to change one, billing/rules/AMBIGUITIES.md
+lists the cases nobody has ruled on. make vectors regenerates the conformance
+vectors the java report in vantage-telco is held to, make check fails when the
+checked in vectors are stale.
 
 the provinces we bill are BC, AB, ON and QC. the province is on the account
 record (PROVINCE=) and on the invoice register page.
 
-vantage-telco rates the same accounts differently. tools/parity in that repo
-runs both registers off the same usage feed and prints the differences.
+tools/parity in vantage-telco runs both registers off the same usage feed and
+prints the differences. it should print none.
 
 contacts: ops-eng (pager), billing questions -> finance
