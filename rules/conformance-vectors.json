@@ -1,0 +1,21 @@
+{
+  "_generated_by": "make vectors in meridian-telco (rules/gen_vectors.c)",
+  "overage_rate_per_gb": 10.00,
+  "mb_per_gb": 1024,
+  "overage": [
+    {"usage_mb": 0, "included_gb": 1000, "overage_gb": 0, "charge": 0.00},
+    {"usage_mb": 1024000, "included_gb": 1000, "overage_gb": 0, "charge": 0.00},
+    {"usage_mb": 1024001, "included_gb": 1000, "overage_gb": 1, "charge": 10.00},
+    {"usage_mb": 1025000, "included_gb": 1000, "overage_gb": 1, "charge": 10.00},
+    {"usage_mb": 1048064, "included_gb": 1000, "overage_gb": 24, "charge": 240.00},
+    {"usage_mb": 7472103, "included_gb": 5000, "overage_gb": 2297, "charge": 22970.00},
+    {"usage_mb": 3000000, "included_gb": 2000, "overage_gb": 930, "charge": 9300.00}
+  ],
+  "rounding": [
+    {"amount": 0.005000, "rounded": 0.01},
+    {"amount": 0.015000, "rounded": 0.02},
+    {"amount": 12.344000, "rounded": 12.34},
+    {"amount": 12.345000, "rounded": 12.35},
+    {"amount": 690.625000, "rounded": 690.63}
+  ]
+}

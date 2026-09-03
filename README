@@ -26,16 +26,34 @@ serviceable locations come from data/locations.csv.
 
 data/ holds the telemetry drops. billing/accounts/ is the account master.
 
-billing rules, one file each, all of them go through billing/invoice.cpp:
+billing rules live in rules/telco_rules.c, one function each. that file is the
+only implementation of these rules in either estate: vantage-telco vendors it
+into shared/telco-rules and calls the same compiled object through ctypes, so
+the register and the vantage invoice are the same arithmetic and not two
+readings of the same words. billing/*.h are thin wrappers over it and
+billing/invoice.cpp assembles the invoice through tr_compute_invoice().
 
-  rating.cpp      whole gigabytes, partial gigs round up, $10 a gig over plan
-  proration.cpp   30 day billing month, mid cycle plan changes split on it
-  promo.cpp       promo credits expire at the end of the cycle they were issued
-  suspension.cpp  a suspended line is billed the full month, no credit
-  lines.cpp       3-9 lines 5% off recurring, 10+ lines 10%
-  latefee.cpp     10 day grace after the due date, then 1.5% of the balance
-  tax.cpp         GST/HST on the pre discount amount, PST/QST on what is paid
-  discounts.cpp   loyalty credit off the subtotal
+  rating          whole gigabytes, partial gigs round up, $10 a gig over plan
+  proration       30 day billing month, mid cycle plan changes split on it
+  promo           promo credits expire at the end of the cycle they were issued
+  suspension      a suspended line is billed the full month, no credit
+  lines           3-9 lines 5% off recurring, 10+ lines 10%
+  latefee         10 day grace after the due date, then 1.5% of the balance
+  tax             GST/HST on the pre discount amount; the provincial base is a
+                  policy, see below
+  discounts       loyalty credit off the subtotal
+
+one rule is unsettled and the library does not pick a side. PST and QST can be
+assessed on what the customer pays (the loyalty credit comes off first, finance
+sign off RS 2010-06, what this register bills) or on what was invoiced (what
+vantage bills). both are implemented, neither is a default, and each estate
+names the one it runs on: billing/policy.h here, app/billing/policy.py there.
+it is worth $2,646.05 across 81 BC and QC accounts in 2026-07. finance owns it.
+
+  make check      billing/rules_test.cpp plus billing/shared_rules_test.cpp,
+                  one check per consolidated rule
+  make vectors    regenerates rules/conformance-vectors.json, which the vantage
+                  java report module is held to (it cannot link the library)
 
 the provinces we bill are BC, AB, ON and QC. the province is on the account
 record (PROVINCE=) and on the invoice register page.

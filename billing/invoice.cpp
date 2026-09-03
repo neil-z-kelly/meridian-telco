@@ -1,46 +1,54 @@
 #include "invoice.h"
-#include "discounts.h"
-#include "latefee.h"
-#include "lines.h"
-#include "money.h"
-#include "promo.h"
-#include "proration.h"
-#include "rating.h"
-#include "suspension.h"
-#include "tax.h"
+#include "policy.h"
+#include "../rules/telco_rules.h"
 
 /* one invoice for one account and one usage record. the register and the
-   invoice api both come through here so they cannot drift from each other. */
+   invoice api both come through here so they cannot drift from each other,
+   and the arithmetic itself is tr_compute_invoice in rules/telco_rules.c so
+   meridian and vantage cannot drift from each other either. */
 
 Invoice compute_invoice(const Account &a, const UsageRec &u) {
+  TrInvoiceInput in;
+  in.province = a.province.c_str();
+  in.period = u.period.c_str();
+  in.plan_fee = a.plan_fee;
+  in.prev_plan_fee = a.prev_plan_fee;
+  in.plan_chg_day = a.plan_chg_day;
+  in.included_gb = a.included_gb;
+  in.line_cnt = a.line_cnt;
+  in.usage_mb = u.usage_mb;
+  in.promo_amt = a.promo_amt;
+  in.promo_dt = a.promo_dt.c_str();
+  in.susp_start = a.susp_start;
+  in.susp_end = a.susp_end;
+  in.prior_bal = a.prior_bal;
+  in.prior_due = a.prior_due.c_str();
+  in.loyalty_pct = a.loyalty_pct;
+
+  TrInvoice r;
+  tr_compute_invoice(&in, meridian_policy(), &r);
+
   Invoice inv;
   inv.acct_id = a.acct_id;
   inv.billing_ref = a.billing_ref;
   inv.period = u.period;
   inv.province = a.province;
   inv.usage_mb = u.usage_mb;
-  inv.usage_gb_rated = usage_gb_rounded(u.usage_mb);
-  inv.overage_gb = overage_gb(u.usage_mb, a.included_gb);
-
-  inv.plan_charge = prorated_plan_charge(a.plan_fee, a.prev_plan_fee, a.plan_chg_day);
-  inv.line_discount = multi_line_discount(inv.plan_charge, a.line_cnt);
-  inv.recurring = money(inv.plan_charge - inv.line_discount);
-  inv.overage_charges = money(rate_overage(u.usage_mb, a.included_gb));
-  inv.suspension_credit_amt = suspension_credit(a.plan_fee, a.susp_start, a.susp_end);
-  inv.promo_credit_amt = promo_credit(a.promo_amt, a.promo_dt, u.period);
-  inv.late_fee_amt = late_fee(a.prior_bal, a.prior_due, u.period);
-
-  double subtotal = inv.recurring + inv.overage_charges + inv.late_fee_amt
-                    - inv.suspension_credit_amt - inv.promo_credit_amt;
-  if (subtotal < 0.0) subtotal = 0.0;
-  inv.subtotal = money(subtotal);
-
-  TaxRates rates = rates_for_province(a.province);
-  inv.loyalty_amt = loyalty_discount(inv.subtotal, a.loyalty_pct);
-  inv.federal_tax_amt = federal_tax(inv.subtotal, rates);
-  inv.provincial_tax_amt = provincial_tax(inv.subtotal, inv.loyalty_amt, rates);
-  inv.federal_label = rates.federal_label;
-  inv.provincial_label = rates.provincial_label;
-  inv.total = money(inv.subtotal - inv.loyalty_amt + inv.federal_tax_amt + inv.provincial_tax_amt);
+  inv.usage_gb_rated = r.usage_gb_rated;
+  inv.overage_gb = r.overage_gb;
+  inv.plan_charge = r.plan_charge;
+  inv.line_discount = r.line_discount;
+  inv.recurring = r.recurring;
+  inv.overage_charges = r.overage_charges;
+  inv.suspension_credit_amt = r.suspension_credit;
+  inv.promo_credit_amt = r.promo_credit;
+  inv.late_fee_amt = r.late_fee;
+  inv.subtotal = r.subtotal;
+  inv.loyalty_amt = r.loyalty;
+  inv.federal_tax_amt = r.federal_tax;
+  inv.provincial_tax_amt = r.provincial_tax;
+  inv.federal_label = r.federal_label;
+  inv.provincial_label = r.provincial_label;
+  inv.total = r.total;
   return inv;
 }
