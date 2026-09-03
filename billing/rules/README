@@ -1,0 +1,37 @@
+shared billing rules
+====================
+
+billing_rules.c is the only implementation of the rules that decide what a
+customer owes. There is no second copy in another language:
+
+  meridian-telco   billing/invoice.cpp links billing_rules.o directly
+  vantage-telco    vendors billing_rules.c and billing_rules.h under
+                   vendor/billing-rules/, builds them into a shared object and
+                   calls it through ctypes (app/billing/rules.py)
+  java/vantage-report
+                   cannot call the object, so it is held to the conformance
+                   vectors generated here instead
+
+files
+-----
+
+  billing_rules.h          the C api, safe to include from C++
+  billing_rules.c          the rules
+  gen_vectors.c            writes the two vector files below
+  conformance_vectors.csv  one row per rule call: rule,arg1,arg2,arg3,expected
+  invoice_vectors.csv      whole invoices: account fields, then every line
+  AMBIGUITIES.md           the cases nobody has ruled on
+
+Both csv files are generated. `make vectors` rewrites them, `make check` fails
+when the checked in copies no longer match what the rules produce.
+
+changing a rule
+---------------
+
+  1. edit billing_rules.c here
+  2. make check          (rules and vectors)
+  3. make register       (the invoice register moves or it does not)
+  4. in vantage-telco:   make sync-rules   then   make test parity
+
+Step 4 is not optional: vantage-telco's build fails while its vendored copy
+differs from this one by so much as a byte.
