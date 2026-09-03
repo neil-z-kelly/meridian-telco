@@ -26,21 +26,31 @@ serviceable locations come from data/locations.csv.
 
 data/ holds the telemetry drops. billing/accounts/ is the account master.
 
-billing rules, one file each, all of them go through billing/invoice.cpp:
+the billing rules all live in billing/rules/telco_rules.c and go through
+billing/invoice.cpp:
 
-  rating.cpp      whole gigabytes, partial gigs round up, $10 a gig over plan
-  proration.cpp   30 day billing month, mid cycle plan changes split on it
-  promo.cpp       promo credits expire at the end of the cycle they were issued
-  suspension.cpp  a suspended line is billed the full month, no credit
-  lines.cpp       3-9 lines 5% off recurring, 10+ lines 10%
-  latefee.cpp     10 day grace after the due date, then 1.5% of the balance
-  tax.cpp         GST/HST on the pre discount amount, PST/QST on what is paid
-  discounts.cpp   loyalty credit off the subtotal
+  rating          whole gigabytes, partial gigs round up, $10 a gig over plan
+  proration       30 day billing month, mid cycle plan changes split on it
+  promo           promo credits expire at the end of the cycle they were issued
+  suspension      a suspended line is billed the full month, no credit
+  lines           3-9 lines 5% off recurring, 10+ lines 10%
+  latefee         10 day grace after the due date, then 1.5% of the balance
+  tax             GST/HST on the pre discount amount, PST/QST on what is paid
+  discounts       loyalty credit off the subtotal
+
+that file is plain C because vantage-telco vendors it and calls the compiled
+object through ctypes: both estates bill from one implementation. it is the
+only place these rules may be written. billing/rules/RULES.md has the rest,
+including the cases still waiting on a finance decision.
+
+make vectors regenerates billing/rules/conformance_vectors.json, the shared
+contract the vantage java report module is tested against. make check fails
+if the checked in copy is stale.
 
 the provinces we bill are BC, AB, ON and QC. the province is on the account
 record (PROVINCE=) and on the invoice register page.
 
-vantage-telco rates the same accounts differently. tools/parity in that repo
-runs both registers off the same usage feed and prints the differences.
+tools/parity in vantage-telco runs both registers off the same usage feed and
+prints any difference; it should print none.
 
 contacts: ops-eng (pager), billing questions -> finance
