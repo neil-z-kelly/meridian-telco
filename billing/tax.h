@@ -2,13 +2,9 @@
 #define MERIDIAN_TAX_H
 
 #include <string>
+#include "rules.h"
 
-struct TaxRates {
-  double federal_pct;    /* GST, or HST where the province is harmonized */
-  double provincial_pct; /* PST or QST, zero in a harmonized province */
-  std::string federal_label;
-  std::string provincial_label;
-};
+typedef rules::TaxRates TaxRates;
 
 TaxRates rates_for_province(const std::string &province);
 

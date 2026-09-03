@@ -4,7 +4,7 @@ LDFLAGS = -lsqlite3
 BIN = bin
 
 MEDIATION_OBJS = mediation/capacity.o mediation/status.o mediation/circuit_counter.o mediation/store.o mediation/locations.o
-BILLING_OBJS = billing/rating.o billing/discounts.o billing/accounts.o billing/tax.o \
+BILLING_OBJS = billing/rules.o billing/rating.o billing/discounts.o billing/accounts.o billing/tax.o \
                billing/proration.o billing/promo.o billing/suspension.o billing/lines.o \
                billing/latefee.o billing/invoice.o
 
