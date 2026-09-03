@@ -1,0 +1,34 @@
+{
+  "spec_version": "1.0.0",
+  "authority": "meridian-telco legacy register (default for every resolved rule)",
+  "constants": {
+    "BILLING_MONTH_DAYS": 30,
+    "MB_PER_GB": 1024,
+    "OVERAGE_RATE_PER_GB": "10.00",
+    "MULTI_LINE_TIER1_MIN_LINES": 3,
+    "MULTI_LINE_TIER1_PCT": "5",
+    "MULTI_LINE_TIER2_MIN_LINES": 10,
+    "MULTI_LINE_TIER2_PCT": "10",
+    "LATE_FEE_GRACE_DAYS": 10,
+    "LATE_FEE_PCT": "1.5",
+    "PROVINCE_RATES": {
+      "BC": {"federal_pct": "5", "provincial_pct": "7", "federal_label": "GST", "provincial_label": "PST"},
+      "AB": {"federal_pct": "5", "provincial_pct": "0", "federal_label": "GST", "provincial_label": ""},
+      "ON": {"federal_pct": "13", "provincial_pct": "0", "federal_label": "HST", "provincial_label": ""},
+      "QC": {"federal_pct": "5", "provincial_pct": "9.975", "federal_label": "GST", "provincial_label": "QST"}
+    },
+    "DEFAULT_PROVINCE_RATES": {"federal_pct": "5", "provincial_pct": "0", "federal_label": "GST", "provincial_label": ""}
+  },
+  "rules": {
+    "ROUNDING": {"status": "RESOLVED", "default": "per-line-item half-up to cents; total is the sum of rounded lines"},
+    "PRORATION": {"status": "RESOLVED", "default": "fixed 30-day billing month, each part rounded to cents"},
+    "OVERAGE_RATING": {"status": "RESOLVED", "default": "usage rounded up to whole GB (1024 MB), $10.00 per GB over allowance"},
+    "MULTI_LINE_DISCOUNT": {"status": "RESOLVED", "default": "3-9 lines 5%, 10+ lines 10% off the plan charge"},
+    "LATE_FEE": {"status": "RESOLVED", "default": "no fee within 10 days of the due date, then 1.5% of prior balance"},
+    "LOYALTY_DISCOUNT": {"status": "RESOLVED", "default": "loyalty_pct of the subtotal, subtracted after tax"},
+    "FEDERAL_TAX": {"status": "RESOLVED", "default": "GST/HST on the pre-discount subtotal"},
+    "PROVINCIAL_TAX_BASE": {"status": "RULE_AMBIGUOUS", "default": "PST/QST on subtotal minus loyalty discount (legacy)", "alternative": "PST/QST on the pre-discount subtotal (vantage)", "decider": "finance / tax compliance"},
+    "PROMO_EXPIRY": {"status": "RULE_AMBIGUOUS", "default": "credit is live only in the calendar cycle it was issued (legacy)", "alternative": "credit is live for 30 days from issue (vantage)", "decider": "marketing / legal (promo terms)"},
+    "SUSPENSION_CREDIT": {"status": "RULE_AMBIGUOUS", "default": "no credit for suspended days (legacy)", "alternative": "suspended days credited at the daily rate (vantage)", "decider": "legal / customer contracts"}
+  }
+}

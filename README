@@ -26,7 +26,13 @@ serviceable locations come from data/locations.csv.
 
 data/ holds the telemetry drops. billing/accounts/ is the account master.
 
-billing rules, one file each, all of them go through billing/invoice.cpp:
+billing rules, one file each, all of them go through billing/invoice.cpp. the
+rules themselves live in billing/rules.cpp, the C++ binding of the shared spec in
+billing/rules/BILLING_RULES.md + billing_rules.json. vantage-telco carries the
+same spec and a python binding (app/billing/rules), so the two registers rate
+alike. change the spec first, then both bindings. three rules are marked
+RULE_AMBIGUOUS in the spec (provincial tax base, promo expiry, suspension
+credit): they run on the legacy default below until finance/legal rule on them.
 
   rating.cpp      whole gigabytes, partial gigs round up, $10 a gig over plan
   proration.cpp   30 day billing month, mid cycle plan changes split on it

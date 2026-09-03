@@ -1,18 +1,13 @@
 #include "invoice.h"
-#include "discounts.h"
-#include "latefee.h"
-#include "lines.h"
-#include "money.h"
-#include "promo.h"
-#include "proration.h"
-#include "rating.h"
-#include "suspension.h"
-#include "tax.h"
+#include "rules.h"
 
 /* one invoice for one account and one usage record. the register and the
-   invoice api both come through here so they cannot drift from each other. */
+   invoice api both come through here so they cannot drift from each other.
+   every rule is the shared binding in rules.h, assembled in the order laid out
+   under "invoice assembly" in billing/rules/BILLING_RULES.md. */
 
 Invoice compute_invoice(const Account &a, const UsageRec &u) {
+  using namespace rules;
   Invoice inv;
   inv.acct_id = a.acct_id;
   inv.billing_ref = a.billing_ref;
