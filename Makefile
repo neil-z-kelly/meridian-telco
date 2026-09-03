@@ -41,6 +41,8 @@ $(BIN)/ipam: network/ipam.o | $(BIN)
 $(BIN)/libbillingrules.so: $(RULES_SRC) billing/rules/billing_rules.h | $(BIN)
 	$(CC) $(CFLAGS) -shared -o $@ $(RULES_SRC) -lm
 
+$(RULES_OBJ) billing/rules/gen_vectors.o billing/invoice.o billing/rules_test.o: billing/rules/billing_rules.h
+
 $(BIN)/gen-vectors: billing/rules/gen_vectors.o $(RULES_OBJ) | $(BIN)
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 
