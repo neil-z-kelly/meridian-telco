@@ -1,12 +1,13 @@
 CXX = g++
 CXXFLAGS = -O2 -Wall
+CC = gcc
+CFLAGS = -O2 -Wall
 LDFLAGS = -lsqlite3
 BIN = bin
 
 MEDIATION_OBJS = mediation/capacity.o mediation/status.o mediation/circuit_counter.o mediation/store.o mediation/locations.o
-BILLING_OBJS = billing/rating.o billing/discounts.o billing/accounts.o billing/tax.o \
-               billing/proration.o billing/promo.o billing/suspension.o billing/lines.o \
-               billing/latefee.o billing/invoice.o
+RULES_OBJS = rules/telco_rules.o
+BILLING_OBJS = $(RULES_OBJS) billing/accounts.o billing/invoice.o
 
 all: $(BIN)/mediation $(BIN)/inventory-api $(BIN)/billing-run $(BIN)/invoice-api $(BIN)/ipam
 
@@ -20,13 +21,19 @@ $(BIN)/inventory-api: $(MEDIATION_OBJS) inventory-api/main.o | $(BIN)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(BIN)/billing-run: $(BILLING_OBJS) billing/run_billing.o | $(BIN)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lm
 
 $(BIN)/invoice-api: $(BILLING_OBJS) billing/invoice-api/main.o | $(BIN)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lm
 
 $(BIN)/billing-test: $(BILLING_OBJS) billing/rules_test.o | $(BIN)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lm
+
+$(BIN)/shared-rules-test: $(RULES_OBJS) billing/shared_rules_test.o | $(BIN)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lm
+
+$(BIN)/rules-vectors: $(RULES_OBJS) rules/gen_vectors.o | $(BIN)
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 $(BIN)/ipam: network/ipam.o | $(BIN)
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -34,11 +41,18 @@ $(BIN)/ipam: network/ipam.o | $(BIN)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 run: all
 	$(BIN)/mediation --data data --db meridian.db
 
-check: $(BIN)/billing-test
+check: $(BIN)/billing-test $(BIN)/shared-rules-test
 	$(BIN)/billing-test
+	$(BIN)/shared-rules-test
+
+vectors: $(BIN)/rules-vectors
+	$(BIN)/rules-vectors > rules/conformance-vectors.json
 
 register: all
 	$(BIN)/billing-run --period 2026-07
@@ -52,4 +66,4 @@ demo: all
 clean:
 	rm -f $(BIN)/* */*.o */*/*.o meridian.db
 
-.PHONY: all run check register demo clean
+.PHONY: all run check register demo vectors clean
