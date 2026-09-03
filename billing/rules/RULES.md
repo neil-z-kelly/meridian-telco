@@ -47,13 +47,20 @@ answer them. They need a finance ruling; each one is listed so it is not
 silently resolved by whoever touches this next.
 
 **A1 — what the java report module's flat `taxPct` means.**
-`java/vantage-report` carries one `taxPct` per account (6.25) and no province,
-while the rule is two components with two different bases (`R-TAXBASE`). A flat
-rate can be read as the federal component only, or as a blended federal +
-provincial rate — and a blended rate cannot reproduce the split bases at all
-once a loyalty credit exists. Until that is ruled on, `R-TAXBASE` is marked
-`FLAGGED` in the java coverage map and the module's tax figures are not held to
-the vectors.
+`java/vantage-report` carries one `taxPct` per account (6.25) and, until now, no
+province, while the rule is two components with two different bases
+(`R-TAXBASE`). A flat rate can be read as the federal component only, or as a
+blended federal + provincial rate — and a blended rate cannot reproduce the
+split bases at all once a loyalty credit exists. 6.25 matches no province on the
+rate card either way, so there is nothing to map it back to.
+
+The rule itself is not in doubt and the java module is held to the `R-TAXBASE`
+vectors for it. What is flagged is the account data: each of that module's
+records now carries the province the seed book gives it, `taxPct` is retained
+but no longer billed on, and the one account with no entry in the seed book
+(Harborline) falls to the library's default federal-only rate rather than to a
+guessed jurisdiction. Its tax figures will change if the ruling says the flat
+rate stood for something else, or once it is given a real province.
 
 **A2 — where the gigabyte round-up happens when a customer has several usage
 records in a period.** Both invoice paths rate one usage record at a time, so
